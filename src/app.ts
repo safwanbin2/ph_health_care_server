@@ -3,6 +3,7 @@ import cors from "cors";
 import { UserRouter } from "./app/modules/User/user.route";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { AdminRouter } from "./app/modules/Admin/admin.route";
+import routeNotFound from "./app/middlewares/routeNotFound";
 
 const app: Application = express();
 
@@ -18,5 +19,6 @@ app.use("/api/v1/admin", AdminRouter);
 
 // error handler
 app.use(globalErrorHandler);
+app.use(routeNotFound);
 
 export default app;
