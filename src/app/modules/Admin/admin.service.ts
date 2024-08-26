@@ -4,10 +4,10 @@ const prisma = new PrismaClient();
 
 const getAllAdmin = async (params: any) => {
   const searchAbleFields = ["name", "email"];
-  const orConditions: Prisma.AdminWhereInput[] = [];
+  const andCondition: Prisma.AdminWhereInput[] = [];
 
   if (params?.searchTerm) {
-    orConditions.push({
+    andCondition.push({
       OR: searchAbleFields.map((field) => ({
         [field]: {
           contains: params?.searchTerm,
@@ -17,10 +17,10 @@ const getAllAdmin = async (params: any) => {
     });
   }
 
-  const andCondition: Prisma.AdminWhereInput = { AND: orConditions };
+  const whereCondition: Prisma.AdminWhereInput = { AND: andCondition };
 
   const result = await prisma.admin.findMany({
-    where: andCondition,
+    where: whereCondition,
   });
   return result;
 };
