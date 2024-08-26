@@ -9,8 +9,14 @@ const getAllAdmin = async (req: Request, res: Response, next: NextFunction) => {
       "searchTerm",
       "contactNumber",
     ]);
+    const options = pickMatchedFilter(req?.query, [
+      "limit",
+      "page",
+      "sortBy",
+      "sortOrder",
+    ]);
 
-    const result = await AdminService.getAllAdmin(filter);
+    const result = await AdminService.getAllAdmin(filter, options);
 
     res.status(200).json({
       success: true,
