@@ -1,19 +1,21 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import pick from "../../shared/pick";
+import calculatePagination from "../../utils/calculatePagination";
+import prisma from "../../utils/prisma";
 
-const prisma = new PrismaClient();
-
-const getAllAdmin = async (params: any, options: any) => {
-  const { limit, page } = options ?? {};
-
+const getAllAdmin = async (
+  params: Record<string, unknown>,
+  options: Record<string, unknown>
+) => {
   const { searchTerm, ...filterQuery } = params ?? {};
   const searchAbleFields = ["name", "email"];
-  const andCondition: Prisma.AdminWhereInput[] = [];
 
-  if (params?.searchTerm) {
-    andCondition.push({
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
       OR: searchAbleFields.map((field) => ({
         [field]: {
-          contains: params?.searchTerm,
+          contains: searchTerm,
           mode: "insensitive",
         },
       })),
@@ -21,7 +23,7 @@ const getAllAdmin = async (params: any, options: any) => {
   }
 
   if (Object.keys(filterQuery).length > 0) {
-    andCondition.push({
+    andConditions.push({
       AND: Object.keys(filterQuery).map((field) => ({
         [field]: {
           equals: filterQuery[field],
@@ -30,20 +32,20 @@ const getAllAdmin = async (params: any, options: any) => {
     });
   }
 
-  const whereCondition: Prisma.AdminWhereInput = { AND: andCondition };
-
+  const whereConditions = { AND: andConditions };
+  // console.dir(whereConditions, { depth: Infinity });
   const result = await prisma.admin.findMany({
-    where: whereCondition,
-    skip: (Number(page) - 1) * Number(limit) || 0,
-    take: Number(limit) || 10,
+    where: whereConditions,
     orderBy:
-      options.sortBy && options.sortOrder
+      options?.sortBy && options?.sortOrder
         ? {
-            [options.sortBy]: options.sortOrder,
+            [options?.sortBy]: options?.sortOrder,
           }
         : {
             createdAt: "desc",
           },
+    skip: (Number(options?.page) - 1) * Number(options?.limit) || 0,
+    take: Number(options?.limit) || 5,
   });
   return result;
 };

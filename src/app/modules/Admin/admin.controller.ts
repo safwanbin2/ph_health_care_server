@@ -1,22 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { AdminService } from "./admin.service";
-import pickMatchedFilter from "../../shared/pickMatchedFilter";
+import pick from "../../shared/pick";
 
 const getAllAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filter = pickMatchedFilter(req?.query, [
-      "email",
-      "searchTerm",
-      "contactNumber",
-    ]);
-    const options = pickMatchedFilter(req?.query, [
-      "limit",
-      "page",
-      "sortBy",
-      "sortOrder",
-    ]);
+    const filterQuery = pick(req?.query, ["name", "email", "searchTerm"]);
+    const options = pick(req?.query, ["sortBy", "sortOrder", "page", "limit"]);
 
-    const result = await AdminService.getAllAdmin(filter, options);
+    const result = await AdminService.getAllAdmin(filterQuery, options);
 
     res.status(200).json({
       success: true,
