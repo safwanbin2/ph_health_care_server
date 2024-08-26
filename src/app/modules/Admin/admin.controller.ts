@@ -1,15 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { AdminService } from "./admin.service";
-
-const pickMatchedFilter = (obj, keys) => {
-  const finalObj = {};
-  for (const element of keys) {
-    if (obj && Object.keys(obj).includes(element)) {
-      finalObj[element] = obj[element];
-    }
-  }
-  return finalObj;
-};
+import pickMatchedFilter from "../../shared/pickMatchedFilter";
 
 const getAllAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
