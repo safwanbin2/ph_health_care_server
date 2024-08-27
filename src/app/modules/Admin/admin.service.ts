@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import pick from "../../shared/pick";
 import calculatePagination from "../../utils/calculatePagination";
 import prisma from "../../utils/prisma";
@@ -9,7 +10,7 @@ const getAllAdmin = async (
   const { searchTerm, ...filterQuery } = params ?? {};
   const searchAbleFields = ["name", "email"];
 
-  const andConditions = [];
+  const andConditions: Prisma.AdminWhereInput[] = [];
 
   if (searchTerm) {
     andConditions.push({
@@ -32,7 +33,7 @@ const getAllAdmin = async (
     });
   }
 
-  const whereConditions = { AND: andConditions };
+  const whereConditions: Prisma.AdminWhereInput = { AND: andConditions };
   // console.dir(whereConditions, { depth: Infinity });
   const result = await prisma.admin.findMany({
     where: whereConditions,
@@ -47,7 +48,19 @@ const getAllAdmin = async (
     skip: (Number(options?.page) - 1) * Number(options?.limit) || 0,
     take: Number(options?.limit) || 5,
   });
-  return result;
+
+  const total = await prisma.admin.count({
+    where: whereConditions,
+  });
+
+  return {
+    meta: {
+      page: Number(options?.page) || 1,
+      total,
+      limit: Number(options?.limit) || 5,
+    },
+    result,
+  };
 };
 
 export const AdminService = {
