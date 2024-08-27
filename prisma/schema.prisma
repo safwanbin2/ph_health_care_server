@@ -49,5 +49,6 @@ enum UserRole {
 }
 enum UserStatus {
   ACTIVE
-  BLOCKED 
+  BLOCKED
+  DELETED
 }

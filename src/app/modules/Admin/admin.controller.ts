@@ -79,9 +79,29 @@ const deleteAdminById = async (
   }
 };
 
+const softDeleteAdminById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req?.params;
+    const result = await AdminService.softDeleteAdminById(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Admin Deleted Soft!",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const AdminController = {
   getAllAdmin,
   getAdminById,
   updateAdminById,
   deleteAdminById,
+  softDeleteAdminById,
 };

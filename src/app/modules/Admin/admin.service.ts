@@ -1,4 +1,4 @@
-import { Admin, Prisma } from "@prisma/client";
+import { Admin, Prisma, UserStatus } from "@prisma/client";
 import pick from "../../shared/pick";
 import calculatePagination from "../../utils/calculatePagination";
 import prisma from "../../utils/prisma";
@@ -104,9 +104,40 @@ const deleteAdminById = async (id: string) => {
   return result;
 };
 
+const softDeleteAdminById = async (id: string) => {
+  await prisma.admin.findUniqueOrThrow({
+    where: { id },
+  });
+
+  const result = await prisma.$transaction(async (tx) => {
+    const adminSoftDeleteResult = await tx.admin.update({
+      where: {
+        id,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+
+    const userSoftDeleteResult = await tx.user.update({
+      where: {
+        email: adminSoftDeleteResult?.email,
+      },
+      data: {
+        status: UserStatus.DELETED,
+      },
+    });
+
+    return adminSoftDeleteResult;
+  });
+
+  return result;
+};
+
 export const AdminService = {
   getAllAdmin,
   getAdminById,
   updateAdminById,
   deleteAdminById,
+  softDeleteAdminById,
 };
