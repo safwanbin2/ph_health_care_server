@@ -39,7 +39,29 @@ const getAdminById = async (
   }
 };
 
+const updateAdminById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req?.params;
+    const data = req?.body;
+
+    const result = await AdminService.updateAdminById(id, data);
+
+    res.status(200).json({
+      success: true,
+      message: "Admin Updated!",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const AdminController = {
   getAllAdmin,
   getAdminById,
+  updateAdminById,
 };
