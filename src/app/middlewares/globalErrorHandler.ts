@@ -9,7 +9,7 @@ const globalErrorHandler = async (
 ) => {
   res.status(err?.statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({
     success: false,
-    message: err?.name || "Something went wrong!",
+    message: err?.message || err?.name || "Something went wrong!",
     error: err,
   });
 };
