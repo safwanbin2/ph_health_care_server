@@ -4,7 +4,7 @@ import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
 import catchAsync from "../../utils/catchAsync";
 
-const getAllAdmin = catchAsync(async (req, res, next) => {
+const getAllAdmin = catchAsync(async (req, res) => {
   const filterQuery = pick(req?.query, ["name", "email", "searchTerm"]);
   const options = pick(req?.query, ["sortBy", "sortOrder", "page", "limit"]);
 
@@ -19,7 +19,7 @@ const getAllAdmin = catchAsync(async (req, res, next) => {
   });
 });
 
-const getAdminById = catchAsync(async (req, res, next) => {
+const getAdminById = catchAsync(async (req, res) => {
   const { id } = req?.params;
   const result = await AdminService.getAdminById(id);
 
@@ -31,7 +31,7 @@ const getAdminById = catchAsync(async (req, res, next) => {
   });
 });
 
-const updateAdminById = catchAsync(async (req, res, next) => {
+const updateAdminById = catchAsync(async (req, res) => {
   const { id } = req?.params;
   const data = req?.body;
 
@@ -57,7 +57,7 @@ const deleteAdminById = catchAsync(async (req, res) => {
   });
 });
 
-const softDeleteAdminById = catchAsync(async (req, res, next) => {
+const softDeleteAdminById = catchAsync(async (req, res) => {
   const { id } = req?.params;
   const result = await AdminService.softDeleteAdminById(id);
 
