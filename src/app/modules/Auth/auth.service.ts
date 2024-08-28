@@ -1,6 +1,6 @@
 import prisma from "../../utils/prisma";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import generateToken from "../../utils/generateToken";
 import verifyToken from "../../utils/verifyToken";
 
@@ -48,7 +48,7 @@ const loginUser = async (payload: { email: string; password: string }) => {
 const refreshToken = async (token: string) => {
   let decodedData;
   try {
-    decodedData = verifyToken(token, "safwanrefresh");
+    decodedData = verifyToken(token, "safwanrefresh") as JwtPayload;
   } catch (error) {
     throw new Error("Verification failed!");
   }
