@@ -29,7 +29,7 @@ const getAllAdmin = async (
     andConditions.push({
       AND: Object.keys(filterQuery).map((field) => ({
         [field]: {
-          equals: filterQuery[field],
+          equals: (filterQuery as any)[field],
         },
       })),
     });
