@@ -2,6 +2,7 @@ import prisma from "../../utils/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import generateToken from "../../utils/generateToken";
+import verifyToken from "../../utils/verifyToken";
 
 const loginUser = async (payload: { email: string; password: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -45,7 +46,33 @@ const loginUser = async (payload: { email: string; password: string }) => {
 };
 
 const refreshToken = async (token: string) => {
-  return token;
+  let decodedData;
+  try {
+    decodedData = verifyToken(token, "safwanrefresh");
+  } catch (error) {
+    throw new Error("Verification failed!");
+  }
+
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: decodedData?.email,
+    },
+  });
+
+  const accessToken = generateToken(
+    {
+      email: isUserExist?.email,
+      role: isUserExist?.role,
+    },
+    "safwanaccess",
+    "5m"
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+    needPasswordChange: isUserExist?.needPasswordChange,
+  };
 };
 
 export const AuthService = {
