@@ -22,7 +22,6 @@ const loginUser = async (payload: { email: string; password: string }) => {
     {
       email: userData?.email,
       role: userData?.role,
-      needPasswordChange: userData?.needPasswordChange,
     },
     "safwanaccess",
     { expiresIn: "15m" }
@@ -32,13 +31,16 @@ const loginUser = async (payload: { email: string; password: string }) => {
     {
       email: userData?.email,
       role: userData?.role,
-      needPasswordChange: userData?.needPasswordChange,
     },
     "safwanrefresh",
     { expiresIn: "30d" }
   );
 
-  return { accessToken, refreshToken };
+  return {
+    accessToken,
+    refreshToken,
+    needPasswordChange: userData?.needPasswordChange,
+  };
 };
 
 export const AuthService = {
