@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { AdminController } from "./admin.controller";
-import validateRequest from "../../utils/validateRequest";
+import validateRequest from "../../middlewares/validateRequest";
 import { AdminValidation } from "./admin.validation";
 
 const router = Router();
