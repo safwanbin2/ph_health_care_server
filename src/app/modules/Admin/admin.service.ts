@@ -2,10 +2,12 @@ import { Admin, Prisma, UserStatus } from "@prisma/client";
 import pick from "../../shared/pick";
 import calculatePagination from "../../utils/calculatePagination";
 import prisma from "../../utils/prisma";
+import { IAdminFilterRequest } from "./admin.interface";
+import { IPaginationOptions } from "../../interfaces/pagination";
 
 const getAllAdmin = async (
-  params: Record<string, unknown>,
-  options: Record<string, unknown>
+  params: IAdminFilterRequest,
+  options: IPaginationOptions
 ) => {
   const { searchTerm, ...filterQuery } = params ?? {};
   const searchAbleFields = ["name", "email"];
