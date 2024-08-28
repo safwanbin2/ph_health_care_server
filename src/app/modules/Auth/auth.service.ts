@@ -18,16 +18,27 @@ const loginUser = async (payload: { email: string; password: string }) => {
     throw new Error("Password wrong!");
   }
 
-  const token = await jwt.sign(
+  const accessToken = await jwt.sign(
     {
       email: userData?.email,
       role: userData?.role,
+      needPasswordChange: userData?.needPasswordChange,
     },
-    "safwan",
+    "safwanaccess",
     { expiresIn: "15m" }
   );
 
-  return { token };
+  const refreshToken = await jwt.sign(
+    {
+      email: userData?.email,
+      role: userData?.role,
+      needPasswordChange: userData?.needPasswordChange,
+    },
+    "safwanrefresh",
+    { expiresIn: "30d" }
+  );
+
+  return { accessToken, refreshToken };
 };
 
 export const AuthService = {
