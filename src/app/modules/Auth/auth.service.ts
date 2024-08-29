@@ -1,9 +1,10 @@
 import prisma from "../../utils/prisma";
 import bcrypt from "bcrypt";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import generateToken from "../../utils/generateToken";
 import verifyToken from "../../utils/verifyToken";
 import { UserStatus } from "@prisma/client";
+import config from "../../config";
 
 const loginUser = async (payload: { email: string; password: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -27,7 +28,7 @@ const loginUser = async (payload: { email: string; password: string }) => {
       email: userData?.email,
       role: userData?.role,
     },
-    "safwanaccess",
+    config.jwt.accessSecret as string,
     "5m"
   );
 
@@ -36,7 +37,7 @@ const loginUser = async (payload: { email: string; password: string }) => {
       email: userData?.email,
       role: userData?.role,
     },
-    "safwanrefresh",
+    config.jwt.refreshSecret as string,
     "30d"
   );
 
@@ -50,7 +51,10 @@ const loginUser = async (payload: { email: string; password: string }) => {
 const refreshToken = async (token: string) => {
   let decodedData;
   try {
-    decodedData = verifyToken(token, "safwanrefresh") as JwtPayload;
+    decodedData = verifyToken(
+      token,
+      config.jwt.refreshSecret as string
+    ) as JwtPayload;
   } catch (error) {
     throw new Error("Verification failed!");
   }
@@ -67,13 +71,12 @@ const refreshToken = async (token: string) => {
       email: isUserExist?.email,
       role: isUserExist?.role,
     },
-    "safwanaccess",
+    config.jwt.accessSecret as string,
     "5m"
   );
 
   return {
     accessToken,
-    refreshToken,
     needPasswordChange: isUserExist?.needPasswordChange,
   };
 };
