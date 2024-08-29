@@ -125,14 +125,14 @@ const forgotPassword = async (payload: { email: string }) => {
   const resetToken = await generateToken(
     { id: userData?.id, email: userData?.email, role: userData?.role },
     config.resetPassSecret as string,
-    "5m"
+    "1h"
   );
 
   const resetLink =
     config.frontendURL +
     `/reset-email?userId=${userData?.id}&token=${resetToken}`;
 
-  const sendMailResult = await sendMail(payload?.email, resetLink);
+  const sendMailResult = await sendMail(userData?.email, resetLink);
 
   return sendMailResult;
 };

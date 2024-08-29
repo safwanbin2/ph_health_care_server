@@ -3,26 +3,26 @@ import config from "../config";
 import AppEror from "../errors/AppError";
 import httpStatus from "http-status";
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
-  port: 587,
-  secure: false,
-  auth: {
-    user: config.sendMail.nodemailerEmail,
-    pass: config.sendMail.appPass,
-  },
-});
-
 const sendMail = async (to: string, resetLink: string) => {
-  console.log({ transporter, to, resetLink });
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: config.sendMail.nodemailerEmail,
+      pass: config.sendMail.appPass,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
   try {
     // send mail with defined transport object
     const info = await transporter.sendMail({
-      from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // sender address
+      from: '"PH Healthcare 👻" <safwanridwan321@gmail.com>', // sender address
       to, // list of receivers
       subject: "PH Healthcare - Reset password", // Subject line
-      text: "Hello world?", // plain text body
-      html: `<a href="${resetLink}">Reset Password</a>`, // html body
+      // text: "Hello world?",
+      html: `<a href=${resetLink}>Reset Password</a>`, // html body
     });
 
     return info;
