@@ -122,7 +122,7 @@ const forgotPassword = async (payload: { email: string }) => {
     },
   });
 
-  const resetToken = await generateToken(
+  const resetToken = generateToken(
     { id: userData?.id, email: userData?.email, role: userData?.role },
     config.resetPassSecret as string,
     "1h"
@@ -137,9 +137,37 @@ const forgotPassword = async (payload: { email: string }) => {
   return sendMailResult;
 };
 
+const resetPassword = async (token: string, payload: { password: string }) => {
+  if (!token) throw new AppEror(401, "No token provided!");
+
+  const decoded: any = verifyToken(token, config.resetPassSecret as string);
+
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: decoded?.id,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const hashedPassword = await bcrypt.hash(payload?.password, 12);
+
+  const updatePassword = await prisma.user.update({
+    where: {
+      id: userData?.id,
+    },
+    data: {
+      password: hashedPassword,
+      needPasswordChange: false,
+    },
+  });
+
+  return updatePassword;
+};
+
 export const AuthService = {
   loginUser,
   refreshToken,
   changePassword,
   forgotPassword,
+  resetPassword,
 };
