@@ -52,8 +52,20 @@ const changePassword = catchAsync(async (req: JwtPayload, res) => {
   });
 });
 
+const forgotPassword = catchAsync(async (req, res) => {
+  const result = await AuthService.forgotPassword(req?.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Check you email!",
+    data: result,
+  });
+});
+
 export const AuthController = {
   loginUser,
   refreshToken,
   changePassword,
+  forgotPassword,
 };

@@ -10,4 +10,10 @@ export default {
     accessSecret: process.env.JWT_ACCESS_SECRET,
     refreshSecret: process.env.JWT_REFRESH_SECRET,
   },
+  sendMail: {
+    nodemailerEmail: process.env.NODEMAILER_EMAIL,
+    appPass: process.env.APP_PASS,
+  },
+  frontendURL: process.env.FRONTEND_URL,
+  resetPassSecret: process.env.RESET_PASS_SECRET,
 };

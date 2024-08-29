@@ -7,6 +7,7 @@ import { UserStatus } from "@prisma/client";
 import config from "../../config";
 import AppEror from "../../errors/AppError";
 import httpStatus from "http-status";
+import sendMail from "../../utils/sendMail";
 
 const loginUser = async (payload: { email: string; password: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -113,8 +114,32 @@ const changePassword = async (user: JwtPayload, payload: any) => {
   return result;
 };
 
+const forgotPassword = async (payload: { email: string }) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: payload?.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const resetToken = await generateToken(
+    { id: userData?.id, email: userData?.email, role: userData?.role },
+    config.resetPassSecret as string,
+    "5m"
+  );
+
+  const resetLink =
+    config.frontendURL +
+    `/reset-email?userId=${userData?.id}&token=${resetToken}`;
+
+  const sendMailResult = await sendMail(payload?.email, resetLink);
+
+  return sendMailResult;
+};
+
 export const AuthService = {
   loginUser,
   refreshToken,
   changePassword,
+  forgotPassword,
 };
