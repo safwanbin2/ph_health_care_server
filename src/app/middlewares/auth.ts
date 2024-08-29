@@ -19,6 +19,7 @@ const auth = (...roles: string[]) => {
       if (roles?.length && !roles.includes(decoded?.role))
         throw new AppEror(httpStatus.FORBIDDEN, "You are not authorized!");
 
+      req.user = decoded;
       next();
     } catch (error) {
       next(error);

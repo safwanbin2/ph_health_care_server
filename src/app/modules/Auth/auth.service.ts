@@ -5,6 +5,8 @@ import generateToken from "../../utils/generateToken";
 import verifyToken from "../../utils/verifyToken";
 import { UserStatus } from "@prisma/client";
 import config from "../../config";
+import AppEror from "../../errors/AppError";
+import httpStatus from "http-status";
 
 const loginUser = async (payload: { email: string; password: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -29,7 +31,7 @@ const loginUser = async (payload: { email: string; password: string }) => {
       role: userData?.role,
     },
     config.jwt.accessSecret as string,
-    "5m"
+    "30d"
   );
 
   const refreshToken = generateToken(
@@ -72,7 +74,7 @@ const refreshToken = async (token: string) => {
       role: isUserExist?.role,
     },
     config.jwt.accessSecret as string,
-    "5m"
+    "30d"
   );
 
   return {
@@ -81,7 +83,38 @@ const refreshToken = async (token: string) => {
   };
 };
 
+const changePassword = async (user: JwtPayload, payload: any) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user?.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const isOldPasswordTrue = await bcrypt.compare(
+    payload?.oldPassword,
+    userData?.password
+  );
+  if (!isOldPasswordTrue)
+    throw new AppEror(httpStatus.FORBIDDEN, "Wrong old password");
+
+  const hashedPassword = await bcrypt.hash(payload?.newPassword, 12);
+
+  const result = await prisma.user.update({
+    where: {
+      email: user?.email,
+    },
+    data: {
+      password: hashedPassword,
+      needPasswordChange: false,
+    },
+  });
+
+  return result;
+};
+
 export const AuthService = {
   loginUser,
   refreshToken,
+  changePassword,
 };
