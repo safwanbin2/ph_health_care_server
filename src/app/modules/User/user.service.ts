@@ -28,7 +28,7 @@ const createAdmin = async (req: any) => {
       data: adminData,
     });
 
-    return { createdUserData, createdAdminData };
+    return createdAdminData;
   });
 
   return result;
