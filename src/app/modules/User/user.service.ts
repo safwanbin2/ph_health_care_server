@@ -5,10 +5,10 @@ import { fileUploader } from "../../utils/fileUploader";
 const prisma = new PrismaClient();
 
 const createAdmin = async (req: any) => {
-  const file = req?.file;
+  const file = req.file;
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-    req.body.admin.profilePhoto = uploadToCloudinary.secure_url;
+    req.body.admin.profilePhoto = uploadToCloudinary?.secure_url;
   }
 
   const hashedPassword = await bcrypt.hash(req?.body?.password, 10);
@@ -18,19 +18,15 @@ const createAdmin = async (req: any) => {
     role: UserRole.ADMIN,
   };
   const adminData = req?.body?.admin;
-
   const result = await prisma.$transaction(async (tx) => {
     const createdUserData = await tx.user.create({
       data: userData,
     });
-
     const createdAdminData = await tx.admin.create({
       data: adminData,
     });
-
     return createdAdminData;
   });
-
   return result;
 };
 
