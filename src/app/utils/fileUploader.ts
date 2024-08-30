@@ -22,10 +22,10 @@ const storage = multer.diskStorage({
 
 const uploadToCloudinary = async (file: any) => {
   try {
-    fs.unlinkSync(file.path);
     const uploadResult = await cloudinary.uploader.upload(file.path, {
       public_id: file.originalname,
     });
+    fs.unlinkSync(file.path);
     return uploadResult;
   } catch (error) {
     throw new AppEror(400, "Could not upload to cloudinary");

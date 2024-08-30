@@ -55,7 +55,6 @@ model Doctor {
   currentWorkingPlace String
   designation String
   isDeleted Boolean @default(false)
-  averageRating Float @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
