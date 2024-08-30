@@ -3,6 +3,7 @@ import path from "path";
 import { v2 as cloudinary } from "cloudinary";
 import config from "../config";
 import AppEror from "../errors/AppError";
+import fs from "fs";
 
 cloudinary.config({
   cloud_name: "ds1maiqpl",
@@ -21,6 +22,7 @@ const storage = multer.diskStorage({
 
 const uploadToCloudinary = async (file: any) => {
   try {
+    fs.unlinkSync(file.path);
     const uploadResult = await cloudinary.uploader.upload(file.path, {
       public_id: file.originalname,
     });
