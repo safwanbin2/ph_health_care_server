@@ -35,7 +35,7 @@ const createDoctorValidationSchema = z.object({
     registrationNumber: z.string({
       required_error: "Reg Number is required",
     }),
-    experience: z.string().optional(),
+    experience: z.number().optional(),
     gender: z.enum(["MALE", "FEMALE"]),
     appointmentFee: z.number({
       required_error: "Appointment fee is required",

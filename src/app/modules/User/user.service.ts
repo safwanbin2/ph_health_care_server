@@ -32,12 +32,12 @@ const createAdmin = async (req: any) => {
 };
 
 const createDoctor = async (req: any) => {
-  // const file = req?.file;
-  // console.log(file);
-  // if (file) {
-  //   const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-  //   req.body.doctor.profilePhoto = uploadToCloudinary?.secure_url;
-  // }
+  const file = req?.file;
+  console.log(file);
+  if (file) {
+    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+    req.body.doctor.profilePhoto = uploadToCloudinary?.secure_url;
+  }
 
   const hashedPassword = await bcrypt.hash(req?.body?.password, 12);
 
