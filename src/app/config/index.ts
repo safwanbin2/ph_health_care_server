@@ -16,4 +16,5 @@ export default {
   },
   frontendURL: process.env.FRONTEND_URL,
   resetPassSecret: process.env.RESET_PASS_SECRET,
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
 };
