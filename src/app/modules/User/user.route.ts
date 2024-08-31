@@ -33,4 +33,15 @@ router.post(
   }
 );
 
+router.post(
+  "/create-patient",
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = UserValidation.createPatientValidationSchema.parse(
+      JSON.parse(req?.body?.data)
+    );
+    return UserController.createPatient(req, res, next);
+  }
+);
+
 export const UserRouter = router;

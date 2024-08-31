@@ -49,6 +49,17 @@ const getAllUser = async (
       sortBy && sortOrder ? { [sortBy]: sortOrder } : { createdAt: "desc" },
     skip: pagination?.skip || 0,
     take: pagination?.limit || 10,
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      needPasswordChange: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      admin: true,
+      doctor: true,
+    },
   });
 
   const documentCount = await prisma.user.count({
@@ -109,16 +120,48 @@ const createDoctor = async (req: any) => {
   const doctorData = req?.body?.doctor;
 
   const result = await prisma.$transaction(async (tx) => {
-    const createUserData = await tx.user.create({
+    const createdUserData = await tx.user.create({
       data: userData,
     });
 
-    const createDoctorData = await tx.doctor.create({
+    const createdDoctorData = await tx.doctor.create({
       data: doctorData,
     });
 
-    return createDoctorData;
+    return createdDoctorData;
   });
+  return result;
+};
+
+const createPatient = async (req: any) => {
+  const file = req?.file;
+  if (file) {
+    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+    req.body.patient.profilePhoto = uploadToCloudinary?.secure_url;
+  }
+
+  const hashedPassword = await bcrypt.hash(req?.body?.password, 12);
+
+  const userData = {
+    email: req?.body?.doctor?.email,
+    password: hashedPassword,
+    role: UserRole.DOCTOR,
+  };
+
+  const patientData = req?.body?.patient;
+
+  const result = await prisma.$transaction(async (tx) => {
+    const createdUserData = await tx.user.create({
+      data: userData,
+    });
+
+    const createdPatientData = await tx.patient.create({
+      data: patientData,
+    });
+
+    return createdPatientData;
+  });
+
   return result;
 };
 
@@ -126,4 +169,5 @@ export const UserService = {
   getAllUser,
   createAdmin,
   createDoctor,
+  createPatient,
 };
