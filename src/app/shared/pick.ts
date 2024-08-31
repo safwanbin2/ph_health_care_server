@@ -1,4 +1,4 @@
-const pick = (obj, keys) => {
+const pick = (obj: Record<string, unknown>, keys: string[]) => {
   const finalObject = {};
   for (const key of keys) {
     if (Object.keys(obj).includes(key)) {
