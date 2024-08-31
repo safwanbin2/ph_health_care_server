@@ -143,9 +143,9 @@ const createPatient = async (req: any) => {
   const hashedPassword = await bcrypt.hash(req?.body?.password, 12);
 
   const userData = {
-    email: req?.body?.doctor?.email,
+    email: req?.body?.patient?.email,
     password: hashedPassword,
-    role: UserRole.DOCTOR,
+    role: UserRole.PATIENT,
   };
 
   const patientData = req?.body?.patient;
