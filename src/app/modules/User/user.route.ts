@@ -7,6 +7,8 @@ import { UserValidation } from "./user.validation";
 
 const router = Router();
 
+router.get("/", UserController.getAllUser);
+
 router.post(
   "/create-admin",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),

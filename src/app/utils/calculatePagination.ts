@@ -1,11 +1,21 @@
-const calculatePagination = (options: { page: string; limit: string }) => {
-  const newPagination = {
-    page: Number(options?.page) || 0,
-    limit: Number(options?.limit) || 5,
-    skip: (Number(options?.page) - 1) * Number(options?.limit) || 0,
-  };
+const calculatePagination = (options: {
+  page: string;
+  limit: string;
+}): { page: number; limit: number; skip: number } => {
+  let page = 1;
+  let limit = 10;
+  let skip = 0;
 
-  return newPagination;
+  if (options?.page) {
+    page = Number(options?.page);
+  }
+  if (options?.limit) {
+    limit = Number(options?.limit);
+  }
+
+  skip = (page - 1) * limit;
+
+  return { page, limit, skip };
 };
 
 export default calculatePagination;
