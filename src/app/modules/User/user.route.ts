@@ -46,4 +46,17 @@ router.post(
 
 router.get("/me", auth(), UserController.getMyProfile);
 
+router.put(
+  "/update-my-profile",
+  auth(),
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = UserValidation.updateProfileValidationSchema.parse(
+      JSON.parse(req?.body?.data)
+    );
+
+    return UserController.updateProfile(req, res, next);
+  }
+);
+
 export const UserRouter = router;

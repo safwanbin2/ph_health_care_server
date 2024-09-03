@@ -2,6 +2,7 @@ import { Prisma, PrismaClient, UserRole } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { fileUploader } from "../../utils/fileUploader";
 import calculatePagination from "../../utils/calculatePagination";
+import { Request } from "express";
 
 const prisma = new PrismaClient();
 
@@ -201,10 +202,52 @@ const getMyProfile = async (user: any) => {
   return { ...userData, ...profileData };
 };
 
+const updateProfile = async (req: Request) => {
+  const { user } = req ?? {};
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user?.email,
+    },
+  });
+
+  const file = req?.file;
+  if (file) {
+    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+    req.body.profilePhoto = uploadToCloudinary?.secure_url;
+  }
+
+  let updatedResult;
+  if (userData?.role === (UserRole.SUPER_ADMIN || UserRole.ADMIN)) {
+    updatedResult = await prisma.admin.update({
+      where: {
+        email: userData?.email,
+      },
+      data: req?.body,
+    });
+  } else if (userData?.role === UserRole.DOCTOR) {
+    updatedResult = await prisma.doctor.update({
+      where: {
+        email: userData?.email,
+      },
+      data: req?.body,
+    });
+  } else if (userData?.role === UserRole.PATIENT) {
+    updatedResult = await prisma.patient.update({
+      where: {
+        email: userData?.email,
+      },
+      data: req?.body,
+    });
+  }
+
+  return updatedResult;
+};
+
 export const UserService = {
   getAllUser,
   createAdmin,
   createDoctor,
   createPatient,
   getMyProfile,
+  updateProfile,
 };

@@ -68,8 +68,50 @@ const createPatientValidationSchema = z.object({
   }),
 });
 
+const updateProfileValidationSchema = z.object({
+  name: z
+    .string({
+      required_error: "Name is required",
+    })
+    .optional(),
+  contactNumber: z
+    .string({
+      required_error: "Contact Number is required",
+    })
+    .optional(),
+  address: z.string().optional(),
+  registrationNumber: z
+    .string({
+      required_error: "Reg Number is required",
+    })
+    .optional(),
+  experience: z.number().optional(),
+  gender: z.enum(["MALE", "FEMALE"]).optional(),
+  appointmentFee: z
+    .number({
+      required_error: "Appointment fee is required",
+    })
+    .optional(),
+  qualification: z
+    .string({
+      required_error: "Qualification is required",
+    })
+    .optional(),
+  currentWorkingPlace: z
+    .string({
+      required_error: "Current Working Place is required",
+    })
+    .optional(),
+  designation: z
+    .string({
+      required_error: "Designation is required",
+    })
+    .optional(),
+});
+
 export const UserValidation = {
   createAdminValidationSchema,
   createDoctorValidationSchema,
   createPatientValidationSchema,
+  updateProfileValidationSchema,
 };
