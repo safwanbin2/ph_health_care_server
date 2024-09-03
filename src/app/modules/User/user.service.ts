@@ -165,9 +165,46 @@ const createPatient = async (req: any) => {
   return result;
 };
 
+const getMyProfile = async (user: any) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user?.email,
+    },
+    select: {
+      id: true,
+      email: true,
+      needPasswordChange: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  let profileData;
+  if (userData?.role === UserRole.SUPER_ADMIN) {
+    profileData = await prisma.admin.findUnique({
+      where: { email: userData?.email },
+    });
+  } else if (userData?.role === UserRole.ADMIN) {
+    profileData = await prisma.admin.findUnique({
+      where: { email: userData?.email },
+    });
+  } else if (userData?.role === UserRole.DOCTOR) {
+    profileData = await prisma.doctor.findUnique({
+      where: { email: userData?.email },
+    });
+  } else if (userData?.role === UserRole.PATIENT) {
+    profileData = await prisma.patient.findUnique({
+      where: { email: userData?.email },
+    });
+  }
+
+  return { ...userData, ...profileData };
+};
+
 export const UserService = {
   getAllUser,
   createAdmin,
   createDoctor,
   createPatient,
+  getMyProfile,
 };

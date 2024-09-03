@@ -44,4 +44,6 @@ router.post(
   }
 );
 
+router.get("/me", auth(), UserController.getMyProfile);
+
 export const UserRouter = router;

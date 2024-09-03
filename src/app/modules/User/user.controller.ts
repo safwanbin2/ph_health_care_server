@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { UserService } from "./user.service";
 import catchAsync from "../../utils/catchAsync";
 import pick from "../../shared/pick";
+import sendResponse from "../../utils/sendResponse";
 
 const getAllUser = catchAsync(async (req, res) => {
   const filterQuery = pick(req?.query, [
@@ -55,9 +56,21 @@ const createPatient = catchAsync(async (req, res) => {
   });
 });
 
+const getMyProfile = catchAsync(async (req, res) => {
+  const result = await UserService.getMyProfile(req?.user);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Profile fetched successfully",
+    data: result,
+  });
+});
+
 export const UserController = {
   createAdmin,
   createDoctor,
   getAllUser,
   createPatient,
+  getMyProfile,
 };
