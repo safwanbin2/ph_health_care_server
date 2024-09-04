@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Patient, Prisma } from "@prisma/client";
 import prisma from "../../utils/prisma";
 import calculatePagination from "../../utils/calculatePagination";
 
@@ -69,7 +69,39 @@ const getSinglePatient = async (patientId: string) => {
   return result;
 };
 
+const updatePatient = async (patientId: string, payload: Partial<Patient>) => {
+  const { patientHealthData, medicalReport, ...payloadData } = payload ?? {};
+
+  const result = await prisma.$transaction(async (tx) => {
+    const updateResult = await tx.patient.update({
+      where: {
+        id: patientId,
+      },
+      data: payloadData,
+    });
+
+    if (Object.keys(patientHealthData).length > 0) {
+      const createPatientHealthDataResult = await tx.patientHealthData.create({
+        data: patientHealthData,
+      });
+    }
+
+    return updateResult;
+  });
+
+  const patient = await prisma.patient.findUniqueOrThrow({
+    where: { id: patientId },
+    include: {
+      patientHealthData: true,
+      medicalReport: true,
+    },
+  });
+
+  return patient;
+};
+
 export const PatientService = {
   getAllPatients,
   getSinglePatient,
+  updatePatient,
 };
