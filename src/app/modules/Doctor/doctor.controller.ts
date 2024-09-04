@@ -1,15 +1,36 @@
+import pick from "../../shared/pick";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { DoctorService } from "./doctor.service";
 
 const getAllDoctor = catchAsync(async (req, res) => {
-  const result = await DoctorService.getAllDoctor();
+  const queryObject = pick(req?.query, [
+    "searchTerm",
+    "name",
+    "email",
+    "address",
+    "qualification",
+    "currentWorkingPlace",
+    "designation",
+  ]);
+
+  const optionObject = pick(req?.query, [
+    "page",
+    "limit",
+    "sortBy",
+    "sortOrder",
+  ]);
+
+  const result = await DoctorService.getAllDoctor(queryObject, optionObject);
+
+  const { data, meta } = result ?? {};
 
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Doctors retrieved successfully",
-    data: result,
+    data,
+    meta,
   });
 });
 

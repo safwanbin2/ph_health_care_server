@@ -1,10 +1,58 @@
-import { Doctor } from "@prisma/client";
+import { Doctor, Prisma } from "@prisma/client";
 import prisma from "../../utils/prisma";
+import calculatePagination from "../../utils/calculatePagination";
 
-const getAllDoctor = async () => {
-  const result = await prisma.doctor.findMany();
+const getAllDoctor = async (params: any, options: any) => {
+  const { searchTerm, ...queryObj } = params ?? {};
 
-  return result;
+  const andCondition: Prisma.DoctorWhereInput[] = [];
+
+  if (searchTerm) {
+    andCondition.push({
+      OR: queryObj.map((filed: any) => ({
+        [filed]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(options)) {
+    andCondition.push({
+      AND: Object.keys(options).map((field) => ({
+        [field]: {
+          equals: options[field],
+        },
+      })),
+    });
+  }
+
+  const paginationOptions = calculatePagination(options);
+
+  const whereCondition: Prisma.DoctorWhereInput = { AND: andCondition };
+
+  const result = await prisma.doctor.findMany({
+    where: whereCondition,
+    skip: paginationOptions?.skip,
+    take: paginationOptions?.limit,
+    orderBy: {
+      [paginationOptions.sortBy]: paginationOptions.sortOrder,
+    },
+  });
+
+  const total = await prisma.doctor.count({
+    where: whereCondition,
+  });
+
+  return {
+    data: result,
+    meta: {
+      page: paginationOptions?.page,
+      limit: paginationOptions?.limit,
+      total,
+    },
+  };
 };
 
 const getSingleDoctor = async (doctorId: string) => {
