@@ -65,28 +65,44 @@ const updateDoctor = async (
       data: doctorData,
     });
 
-    for (const specialitiy of specialities) {
-      if (specialitiy?.isDeleted) {
-        await tx.doctorSpecialities.deleteMany({
-          where: {
-            doctorId: doctorInfo?.id,
-            specialityId: specialitiy.id,
-          },
-        });
-      } else {
-        await tx.doctorSpecialities.create({
-          data: {
-            doctorId: doctorInfo?.id,
-            specialityId: specialitiy.id,
-          },
-        });
+    if (specialities && specialities.length > 0) {
+      for (const specialitiy of specialities) {
+        if (specialitiy?.isDeleted) {
+          await tx.doctorSpecialities.deleteMany({
+            where: {
+              doctorId: doctorInfo?.id,
+              specialityId: specialitiy.id,
+            },
+          });
+        } else {
+          await tx.doctorSpecialities.create({
+            data: {
+              doctorId: doctorInfo?.id,
+              specialityId: specialitiy.id,
+            },
+          });
+        }
       }
     }
 
     return updateResult;
   });
 
-  return doctorInfo;
+  const doctorResult = await prisma.doctor.findUniqueOrThrow({
+    where: {
+      id: doctorId,
+      isDeleted: false,
+    },
+    include: {
+      doctorSpecialities: {
+        include: {
+          specialities: true,
+        },
+      },
+    },
+  });
+
+  return doctorResult;
 };
 
 export const DoctorService = {
