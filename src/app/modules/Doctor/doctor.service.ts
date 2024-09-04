@@ -41,22 +41,43 @@ const deleteDoctorById = async (doctorId: string) => {
   return result;
 };
 
-const updateDoctor = async (doctorId: string, payload: Partial<Doctor>) => {
-  const doctorData = await prisma.doctor.findUniqueOrThrow({
+const updateDoctor = async (
+  doctorId: string,
+  payload: Partial<Doctor> & { specialities: string[] }
+) => {
+  const { specialities, ...doctorData } = payload ?? {};
+
+  const doctorInfo = await prisma.doctor.findUniqueOrThrow({
     where: {
       id: doctorId,
       isDeleted: false,
     },
-  });
-
-  const result = await prisma.doctor.update({
-    where: {
-      id: doctorId,
+    include: {
+      doctorSpecialities: true,
     },
-    data: payload,
   });
 
-  return result;
+  const result = await prisma.$transaction(async (tx) => {
+    const updateResult = await tx.doctor.update({
+      where: {
+        id: doctorId,
+      },
+      data: doctorData,
+    });
+
+    for (const specialitiy of specialities) {
+      await tx.doctorSpecialities.create({
+        data: {
+          doctorId: doctorInfo?.id,
+          specialityId: specialitiy,
+        },
+      });
+    }
+
+    return updateResult;
+  });
+
+  return doctorInfo;
 };
 
 export const DoctorService = {
