@@ -7,6 +7,7 @@ import routeNotFound from "./app/middlewares/routeNotFound";
 import { AuthRouter } from "./app/modules/Auth/auth.route";
 import cookieParser from "cookie-parser";
 import { SpecialitiesRouter } from "./app/modules/Specialities/specialities.route";
+import { DoctorRouter } from "./app/modules/Doctor/doctor.route";
 
 const app: Application = express();
 
@@ -19,6 +20,7 @@ app.use(cookieParser());
 // routes
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/admin", AdminRouter);
+app.use("/api/v1/doctor", DoctorRouter);
 app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/specialities", SpecialitiesRouter);
 
