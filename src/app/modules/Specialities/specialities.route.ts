@@ -7,6 +7,8 @@ import { SpecialitiesValidation } from "./specialities.validation";
 
 const router = Router();
 
+router.get("/", SpecialitiesController.getAllSpecialities);
+
 router.post(
   "/",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
@@ -17,6 +19,12 @@ router.post(
     );
     return SpecialitiesController.createSpeciality(req, res, next);
   }
+);
+
+router.delete(
+  "/:specialityId",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  SpecialitiesController.deleteSpeciality
 );
 
 export const SpecialitiesRouter = router;
