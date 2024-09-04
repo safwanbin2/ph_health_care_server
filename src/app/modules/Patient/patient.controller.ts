@@ -1,15 +1,22 @@
+import pick from "../../shared/pick";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { PatientService } from "./patient.service";
 
 const getAllPatients = catchAsync(async (req, res) => {
-  const result = await PatientService.getAllPatients();
+  const queryObj = pick(req?.query, ["searchTerm", "name", "email", "address"]);
+  const optionObj = pick(req?.query, ["page", "limit", "sortBy", "sortOrder"]);
+
+  const result = await PatientService.getAllPatients(queryObj, optionObj);
+
+  const { meta, data } = result ?? {};
 
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Pateints retrieved successfully",
-    data: result,
+    data,
+    meta,
   });
 });
 
