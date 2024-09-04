@@ -37,6 +37,10 @@ const getAllPatients = async (params: any, options: any) => {
     orderBy: {
       [sortBy]: sortOrder,
     },
+    include: {
+      patientHealthData: true,
+      medicalReport: true,
+    },
   });
 
   const total = await prisma.patient.count({ where: whereCondition });
@@ -51,6 +55,21 @@ const getAllPatients = async (params: any, options: any) => {
   };
 };
 
+const getSinglePatient = async (patientId: string) => {
+  const result = await prisma.patient.findUniqueOrThrow({
+    where: {
+      id: patientId,
+    },
+    include: {
+      patientHealthData: true,
+      medicalReport: true,
+    },
+  });
+
+  return result;
+};
+
 export const PatientService = {
   getAllPatients,
+  getSinglePatient,
 };
