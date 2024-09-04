@@ -9,7 +9,14 @@ const getAllDoctor = async (params: any, options: any) => {
 
   if (searchTerm) {
     andCondition.push({
-      OR: queryObj.map((filed: any) => ({
+      OR: [
+        "name",
+        "email",
+        "address",
+        "qualification",
+        "designation",
+        "currentWorkingPlace",
+      ].map((filed: any) => ({
         [filed]: {
           contains: searchTerm,
           mode: "insensitive",
@@ -18,11 +25,11 @@ const getAllDoctor = async (params: any, options: any) => {
     });
   }
 
-  if (Object.keys(options)) {
+  if (Object.keys(queryObj).length > 0) {
     andCondition.push({
-      AND: Object.keys(options).map((field) => ({
+      AND: Object.keys(queryObj).map((field) => ({
         [field]: {
-          equals: options[field],
+          equals: queryObj[field],
         },
       })),
     });

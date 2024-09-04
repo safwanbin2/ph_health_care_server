@@ -12,6 +12,7 @@ const getAllDoctor = catchAsync(async (req, res) => {
     "qualification",
     "currentWorkingPlace",
     "designation",
+    "gender",
   ]);
 
   const optionObject = pick(req?.query, [
