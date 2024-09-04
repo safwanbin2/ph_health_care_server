@@ -3,7 +3,7 @@ import prisma from "../../utils/prisma";
 import calculatePagination from "../../utils/calculatePagination";
 
 const getAllDoctor = async (params: any, options: any) => {
-  const { searchTerm, ...queryObj } = params ?? {};
+  const { searchTerm, speciality, ...queryObj } = params ?? {};
 
   const andCondition: Prisma.DoctorWhereInput[] = [];
 
@@ -22,6 +22,21 @@ const getAllDoctor = async (params: any, options: any) => {
           mode: "insensitive",
         },
       })),
+    });
+  }
+
+  if (speciality) {
+    andCondition.push({
+      doctorSpecialities: {
+        some: {
+          specialities: {
+            title: {
+              contains: speciality,
+              mode: "insensitive",
+            },
+          },
+        },
+      },
     });
   }
 
@@ -45,6 +60,13 @@ const getAllDoctor = async (params: any, options: any) => {
     take: paginationOptions?.limit,
     orderBy: {
       [paginationOptions.sortBy]: paginationOptions.sortOrder,
+    },
+    include: {
+      doctorSpecialities: {
+        include: {
+          specialities: true,
+        },
+      },
     },
   });
 
