@@ -43,7 +43,7 @@ const deleteDoctorById = async (doctorId: string) => {
 
 const updateDoctor = async (
   doctorId: string,
-  payload: Partial<Doctor> & { specialities: string[] }
+  payload: Partial<Doctor> & { specialities: any[] }
 ) => {
   const { specialities, ...doctorData } = payload ?? {};
 
@@ -66,12 +66,21 @@ const updateDoctor = async (
     });
 
     for (const specialitiy of specialities) {
-      await tx.doctorSpecialities.create({
-        data: {
-          doctorId: doctorInfo?.id,
-          specialityId: specialitiy,
-        },
-      });
+      if (specialitiy?.isDeleted) {
+        await tx.doctorSpecialities.deleteMany({
+          where: {
+            doctorId: doctorInfo?.id,
+            specialityId: specialitiy.id,
+          },
+        });
+      } else {
+        await tx.doctorSpecialities.create({
+          data: {
+            doctorId: doctorInfo?.id,
+            specialityId: specialitiy.id,
+          },
+        });
+      }
     }
 
     return updateResult;
