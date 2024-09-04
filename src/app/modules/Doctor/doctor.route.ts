@@ -9,6 +9,10 @@ router.get("/:doctorId", DoctorController.getSingleDoctor);
 
 router.get("/", DoctorController.getAllDoctor);
 
+router.delete("/:doctorId", DoctorController.deleteDoctorById);
+
+router.delete("/soft/:doctorId", DoctorController.softDeleteDoctorById);
+
 router.put(
   "/:doctorId",
   validateRequest(DoctorValidation.updateDoctorValidationSchema),

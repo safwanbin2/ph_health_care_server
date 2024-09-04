@@ -11,6 +11,30 @@ const getSingleDoctor = async (doctorId: string) => {
   const result = await prisma.doctor.findUniqueOrThrow({
     where: {
       id: doctorId,
+      isDeleted: false,
+    },
+  });
+
+  return result;
+};
+
+const softDeleteDoctorById = async (doctorId: string) => {
+  const result = await prisma.doctor.update({
+    where: {
+      id: doctorId,
+    },
+    data: {
+      isDeleted: true,
+    },
+  });
+
+  return result;
+};
+
+const deleteDoctorById = async (doctorId: string) => {
+  const result = await prisma.doctor.delete({
+    where: {
+      id: doctorId,
     },
   });
 
@@ -21,6 +45,7 @@ const updateDoctor = async (doctorId: string, payload: Partial<Doctor>) => {
   const doctorData = await prisma.doctor.findUniqueOrThrow({
     where: {
       id: doctorId,
+      isDeleted: false,
     },
   });
 
@@ -38,4 +63,6 @@ export const DoctorService = {
   getAllDoctor,
   getSingleDoctor,
   updateDoctor,
+  softDeleteDoctorById,
+  deleteDoctorById,
 };
