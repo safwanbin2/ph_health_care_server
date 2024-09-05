@@ -72,6 +72,10 @@ const getSinglePatient = async (patientId: string) => {
 const updatePatient = async (patientId: string, payload: Partial<Patient>) => {
   const { patientHealthData, medicalReport, ...payloadData } = payload ?? {};
 
+  const patientInfo = await prisma.patient.findUniqueOrThrow({
+    where: { id: patientId },
+  });
+
   const result = await prisma.$transaction(async (tx) => {
     const updateResult = await tx.patient.update({
       where: {
@@ -81,8 +85,18 @@ const updatePatient = async (patientId: string, payload: Partial<Patient>) => {
     });
 
     if (Object.keys(patientHealthData).length > 0) {
-      const createPatientHealthDataResult = await tx.patientHealthData.create({
-        data: patientHealthData,
+      const createPatientHealthDataResult = await tx.patientHealthData.upsert({
+        where: {
+          patientId: patientInfo?.id,
+        },
+        update: patientHealthData,
+        create: { ...patientHealthData, patientId },
+      });
+    }
+
+    if (Object.keys(medicalReport).length > 0) {
+      const createMedicalReportResult = await tx.medicalReport.create({
+        data: { ...medicalReport, patientId },
       });
     }
 
