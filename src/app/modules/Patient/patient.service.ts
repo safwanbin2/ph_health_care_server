@@ -114,8 +114,33 @@ const updatePatient = async (patientId: string, payload: Partial<Patient>) => {
   return patient;
 };
 
+const deletePatient = async (patientId: string) => {
+  const result = await prisma.$transaction(async (tx) => {
+    const medicalReportResult = await tx.medicalReport.deleteMany({
+      where: { patientId },
+    });
+
+    const patientHealthDataResult = await tx.patientHealthData.delete({
+      where: { patientId },
+    });
+
+    const patientResult = await tx.patient.delete({
+      where: { id: patientId },
+    });
+
+    const userResult = await tx.user.delete({
+      where: { email: patientResult?.email },
+    });
+
+    return patientResult;
+  });
+
+  return result;
+};
+
 export const PatientService = {
   getAllPatients,
   getSinglePatient,
   updatePatient,
+  deletePatient,
 };
