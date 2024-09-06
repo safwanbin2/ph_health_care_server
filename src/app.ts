@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import { SpecialitiesRouter } from "./app/modules/Specialities/specialities.route";
 import { DoctorRouter } from "./app/modules/Doctor/doctor.route";
 import { PatientRouter } from "./app/modules/Patient/patient.route";
+import { ScheduleRouter } from "./app/modules/Schedule/schedule.route";
 
 const app: Application = express();
 
@@ -25,6 +26,7 @@ app.use("/api/v1/doctor", DoctorRouter);
 app.use("/api/v1/patient", PatientRouter);
 app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/specialities", SpecialitiesRouter);
+app.use("/api/v1/schedule", ScheduleRouter);
 
 // error handler
 app.use(globalErrorHandler);
