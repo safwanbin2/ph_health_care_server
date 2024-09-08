@@ -13,7 +13,7 @@ const createSchedule = async (
   const endDateRaw = new Date(endDate);
 
   while (startDateRaw <= endDateRaw) {
-    const startDateTimeRaw = new Date(
+    const currentStartDateTimeRaw = new Date(
       addMinutes(
         addHours(
           `${format(startDateRaw, "yyyy-MM-dd")}`,
@@ -23,7 +23,7 @@ const createSchedule = async (
       )
     );
 
-    const endDateTimeRaw = new Date(
+    const currentEndDateTimeRaw = new Date(
       addMinutes(
         addHours(
           `${format(startDateRaw, "yyyy-MM-dd")}`,
@@ -33,10 +33,10 @@ const createSchedule = async (
       )
     );
 
-    while (startDateTimeRaw < endDateTimeRaw) {
+    while (currentStartDateTimeRaw < currentEndDateTimeRaw) {
       const scheduleData = {
-        startDate: startDateTimeRaw,
-        endDate: addMinutes(startDateTimeRaw, interval),
+        startDate: currentStartDateTimeRaw,
+        endDate: addMinutes(currentStartDateTimeRaw, interval),
       };
 
       const isExist = await prisma.schedule.findFirst({
@@ -45,6 +45,7 @@ const createSchedule = async (
           endDate: scheduleData.endDate,
         },
       });
+
       if (!isExist) {
         const result = await prisma.schedule.create({
           data: scheduleData,
@@ -52,7 +53,9 @@ const createSchedule = async (
         schedules.push(result);
       }
 
-      startDateTimeRaw.setMinutes(startDateTimeRaw.getMinutes() + interval);
+      currentStartDateTimeRaw.setMinutes(
+        currentStartDateTimeRaw.getMinutes() + interval
+      );
     }
 
     startDateRaw.setDate(startDateRaw.getDate() + 1);
