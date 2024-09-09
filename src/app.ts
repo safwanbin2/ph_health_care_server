@@ -10,6 +10,7 @@ import { SpecialitiesRouter } from "./app/modules/Specialities/specialities.rout
 import { DoctorRouter } from "./app/modules/Doctor/doctor.route";
 import { PatientRouter } from "./app/modules/Patient/patient.route";
 import { ScheduleRouter } from "./app/modules/Schedule/schedule.route";
+import { DoctorScheduleRouter } from "./app/modules/DoctorSchedule/doctorSchedule.route";
 
 const app: Application = express();
 
@@ -27,6 +28,7 @@ app.use("/api/v1/patient", PatientRouter);
 app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/specialities", SpecialitiesRouter);
 app.use("/api/v1/schedule", ScheduleRouter);
+app.use("/api/v1/doctor-schedule", DoctorScheduleRouter);
 
 // error handler
 app.use(globalErrorHandler);
