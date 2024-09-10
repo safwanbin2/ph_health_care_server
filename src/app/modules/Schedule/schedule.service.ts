@@ -1,6 +1,7 @@
-import { Schedule } from "@prisma/client";
+import { Prisma, Schedule } from "@prisma/client";
 import { addHours, addMinutes, format } from "date-fns";
 import prisma from "../../utils/prisma";
+import calculatePagination from "../../utils/calculatePagination";
 
 const createSchedule = async (
   payload: Schedule & { startTime: string; endTime: string }
@@ -64,6 +65,43 @@ const createSchedule = async (
   return schedules;
 };
 
+const getAllSchedules = async (filters: any, options: any) => {
+  const { startDate, endDate } = filters;
+  const andCondition: Prisma.ScheduleWhereInput[] = [];
+
+  if (startDate && endDate) {
+    andCondition.push({
+      AND: [
+        {
+          startDate: {
+            gte: startDate,
+          },
+        },
+        {
+          endDate: {
+            lte: endDate,
+          },
+        },
+      ],
+    });
+  }
+
+  const { page, limit, sortBy, sortOrder, skip } = calculatePagination(options);
+
+  const whereCondition: Prisma.ScheduleWhereInput = { AND: andCondition };
+  const result = await prisma.schedule.findMany({
+    where: whereCondition,
+    take: limit,
+    skip,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+  });
+
+  return result;
+};
+
 export const ScheduleService = {
   createSchedule,
+  getAllSchedules,
 };

@@ -1,3 +1,4 @@
+import pick from "../../shared/pick";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { ScheduleService } from "./schedule.service";
@@ -13,6 +14,21 @@ const createSchedule = catchAsync(async (req, res) => {
   });
 });
 
+const getAllSchedules = catchAsync(async (req, res) => {
+  const filters = pick(req?.query, ["startDate", "endDate", "isBooked"]);
+  const options = pick(req?.query, ["page", "limit", "sortBy", "sortOrder"]);
+
+  const result = await ScheduleService.getAllSchedules(filters, options);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Schedules fetched successfully",
+    data: result,
+  });
+});
+
 export const ScheduleController = {
   createSchedule,
+  getAllSchedules,
 };
