@@ -1,6 +1,8 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../utils/prisma";
 import calculatePagination from "../../utils/calculatePagination";
+import AppEror from "../../errors/AppError";
+import httpStatus from "http-status";
 
 const createDoctorSchedule = async (user: any, payload: any) => {
   const doctorData = await prisma.doctor.findUniqueOrThrow({
@@ -109,7 +111,41 @@ const getMySchedule = async (filters: any, options: any, user: any) => {
   };
 };
 
+const deleteDoctorSchedule = async (scheduleId: string, user: any) => {
+  const doctorData = await prisma.doctor.findUniqueOrThrow({
+    where: {
+      email: user?.email,
+    },
+  });
+
+  const isBookedResult = await prisma.doctorSchedules.findUnique({
+    where: {
+      doctorId_scheduleId: {
+        doctorId: doctorData?.id,
+        scheduleId,
+      },
+      isBooked: true,
+    },
+  });
+
+  if (isBookedResult) {
+    throw new AppEror(httpStatus.BAD_REQUEST, "Can't delete booked schedule!");
+  }
+
+  const result = await prisma.doctorSchedules.delete({
+    where: {
+      doctorId_scheduleId: {
+        doctorId: doctorData?.id,
+        scheduleId,
+      },
+    },
+  });
+
+  return result;
+};
+
 export const DoctorScheduleService = {
   createDoctorSchedule,
   getMySchedule,
+  deleteDoctorSchedule,
 };
