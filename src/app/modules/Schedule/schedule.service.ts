@@ -65,7 +65,7 @@ const createSchedule = async (
   return schedules;
 };
 
-const getAllSchedules = async (filters: any, options: any) => {
+const getAllSchedules = async (filters: any, options: any, user: any) => {
   const { startDate, endDate } = filters;
   const andCondition: Prisma.ScheduleWhereInput[] = [];
 
@@ -86,11 +86,20 @@ const getAllSchedules = async (filters: any, options: any) => {
     });
   }
 
-  const { page, limit, sortBy, sortOrder, skip } = calculatePagination(options);
+  const doctorSchedules = await prisma.doctorSchedules.findMany({
+    where: {
+      doctor: {
+        email: user?.email,
+      },
+    },
+  });
 
+  const schedulesIds = doctorSchedules.map((schedule) => schedule.scheduleId);
+
+  const { page, limit, sortBy, sortOrder, skip } = calculatePagination(options);
   const whereCondition: Prisma.ScheduleWhereInput = { AND: andCondition };
   const result = await prisma.schedule.findMany({
-    where: whereCondition,
+    where: { ...whereCondition, id: { notIn: schedulesIds } },
     take: limit,
     skip,
     orderBy: {
@@ -98,7 +107,18 @@ const getAllSchedules = async (filters: any, options: any) => {
     },
   });
 
-  return result;
+  const count = await prisma.schedule.count({
+    where: { ...whereCondition, id: { notIn: schedulesIds } },
+  });
+
+  return {
+    data: result,
+    meta: {
+      page,
+      limit,
+      total: count,
+    },
+  };
 };
 
 export const ScheduleService = {

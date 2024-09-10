@@ -18,13 +18,19 @@ const getAllSchedules = catchAsync(async (req, res) => {
   const filters = pick(req?.query, ["startDate", "endDate", "isBooked"]);
   const options = pick(req?.query, ["page", "limit", "sortBy", "sortOrder"]);
 
-  const result = await ScheduleService.getAllSchedules(filters, options);
+  const result = await ScheduleService.getAllSchedules(
+    filters,
+    options,
+    req?.user
+  );
+  const { meta, data } = result;
 
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Schedules fetched successfully",
-    data: result,
+    data,
+    meta,
   });
 });
 
