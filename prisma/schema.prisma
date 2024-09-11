@@ -62,6 +62,7 @@ model Doctor {
   user User @relation(fields: [email], references: [email])
   doctorSpecialities DoctorSpecialities[]
   doctorSchedules DoctorSchedules[]
+  appointment Appointment[]
 
   @@map("doctors")
 }
@@ -80,6 +81,7 @@ model Patient {
   user User @relation(fields: [email], references: [email])
   patientHealthData PatientHealthData?
   medicalReport MedicalReport[]
+  appointment Appointment[]
 
   @@map("patients")
 }
@@ -148,6 +150,7 @@ model Schedule {
   updatedAt DateTime @updatedAt
 
   doctorSchedule DoctorSchedules[]
+  appointment Appointment?
 
   @@map("schedules")
 }
@@ -165,6 +168,29 @@ model DoctorSchedules {
 
   @@id([doctorId, scheduleId])
   @@map("doctor_schedules")
+}
+
+
+model Appointment {
+  id String @id @default(uuid())
+
+  patientId String
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  doctorId String
+  doctor Doctor @relation(fields: [doctorId], references: [id])
+
+  scheduleId String @unique
+  schedule Schedule @relation(fields: [scheduleId], references: [id])
+
+
+  videoCallingId String
+  status AppointmentStatus
+  paymentStatus PaymentStaus
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("appointments")
 }
 
 
@@ -204,4 +230,16 @@ enum BloodGroup  {
 enum MaritalStatus {
   MARRIED
   UNMARRIED
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  INPROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum PaymentStaus {
+  PAID
+  UNPAID
 }
