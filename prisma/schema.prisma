@@ -185,8 +185,8 @@ model Appointment {
 
 
   videoCallingId String
-  status AppointmentStatus
-  paymentStatus PaymentStaus
+  status AppointmentStatus @default(SCHEDULED)
+  paymentStatus PaymentStaus @default(UNPAID)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
