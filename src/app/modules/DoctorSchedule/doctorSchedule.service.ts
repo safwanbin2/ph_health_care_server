@@ -16,8 +16,6 @@ const createDoctorSchedule = async (user: any, payload: any) => {
     scheduleId: id,
   }));
 
-  console.log(scheduleData);
-
   const result = await prisma.doctorSchedules.createMany({
     data: scheduleData,
   });
