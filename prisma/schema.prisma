@@ -163,7 +163,8 @@ model DoctorSchedules {
   schedule Schedule @relation(fields: [scheduleId], references: [id])
 
   isBooked Boolean @default(false)
-  appointmentId String? //todo after appoinment schemea added 
+  appointmentId String? @unique
+  appointment Appointment? @relation(fields: [appointmentId], references: [id]) 
 
 
   @@id([doctorId, scheduleId])
@@ -182,6 +183,8 @@ model Appointment {
 
   scheduleId String @unique
   schedule Schedule @relation(fields: [scheduleId], references: [id])
+
+  doctorSchedules DoctorSchedules?
 
 
   videoCallingId String
