@@ -54,6 +54,16 @@ const createAppointment = async (user: any, payload: any) => {
       },
     });
 
+    const transactionId = "ds";
+
+    await tx.payment.create({
+      data: {
+        appointmentId: appointmentData?.id,
+        amount: doctorData?.appointmentFee,
+        transactionId,
+      },
+    });
+
     return appointmentData;
   });
 
