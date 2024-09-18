@@ -5,6 +5,12 @@ import { AppointmentController } from "./appointment.controller";
 
 const router = Router();
 
+router.get(
+  "/",
+  auth(UserRole.PATIENT, UserRole.DOCTOR),
+  AppointmentController.getMyAppointment
+);
+
 router.post(
   "/",
   auth(UserRole.PATIENT),
