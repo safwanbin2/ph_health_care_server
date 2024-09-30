@@ -2,6 +2,8 @@ import axios from "axios";
 import config from "../../config";
 import prisma from "../../utils/prisma";
 import { SSLService } from "../SSL/ssl.service";
+import AppEror from "../../errors/AppError";
+import httpStatus from "http-status";
 
 const initiatePayment = async (appointmentId: string) => {
   const paymentData = await prisma.payment.findFirstOrThrow({
@@ -32,6 +34,22 @@ const initiatePayment = async (appointmentId: string) => {
   };
 };
 
+const validatePayment = async (payload: any) => {
+  if (!payload || !payload.status || payload.status !== "VALID") {
+    throw new AppEror(httpStatus.BAD_REQUEST, "Invalid payment status");
+  }
+
+  const { data } = await axios({
+    method: "GET",
+    url: `https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php?val_id=${payload?.val_id}&store_id=${config.store_id}&store_passwd=${config.store_password}&format=json`,
+  });
+
+  if (data?.status !== "VALID") {
+    throw new AppEror(httpStatus.BAD_REQUEST, "Payment is not valid");
+  }
+};
+
 export const PaymentService = {
   initiatePayment,
+  validatePayment,
 };
