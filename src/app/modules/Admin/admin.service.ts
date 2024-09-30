@@ -1,6 +1,4 @@
 import { Admin, Prisma, UserStatus } from "@prisma/client";
-import pick from "../../shared/pick";
-import calculatePagination from "../../utils/calculatePagination";
 import prisma from "../../utils/prisma";
 import { IAdminFilterRequest } from "./admin.interface";
 import { IPaginationOptions } from "../../interfaces/pagination";
