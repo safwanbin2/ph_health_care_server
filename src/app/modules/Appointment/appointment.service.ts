@@ -1,8 +1,11 @@
-import { Prisma, UserRole } from "@prisma/client";
+import { AppointmentStatus, Prisma, UserRole } from "@prisma/client";
 import { TAuthUser } from "../../interfaces/jwt";
 import prisma from "../../utils/prisma";
 import { v4 as uuidv4 } from "uuid";
 import calculatePagination from "../../utils/calculatePagination";
+import { JwtPayload } from "jsonwebtoken";
+import AppEror from "../../errors/AppError";
+import httpStatus from "http-status";
 
 const createAppointment = async (user: any, payload: any) => {
   const patientData = await prisma.patient.findUniqueOrThrow({
@@ -143,7 +146,40 @@ const getMyAppointment = async (
   };
 };
 
+const changeStatus = async (
+  appointmentId: string,
+  status: AppointmentStatus,
+  user: JwtPayload
+) => {
+  const appointmentData = await prisma.appointment.findUniqueOrThrow({
+    where: {
+      id: appointmentId,
+    },
+    include: {
+      doctor: true,
+    },
+  });
+
+  if (user?.role === UserRole.DOCTOR) {
+    if (user?.email !== appointmentData?.doctor?.email) {
+      throw new AppEror(httpStatus.BAD_REQUEST, "This is not your schedule");
+    }
+  }
+
+  const result = await prisma.appointment.update({
+    where: {
+      id: appointmentId,
+    },
+    data: {
+      status,
+    },
+  });
+
+  return result;
+};
+
 export const AppointmentService = {
   createAppointment,
   getMyAppointment,
+  changeStatus,
 };
