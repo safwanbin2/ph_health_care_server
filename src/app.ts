@@ -13,6 +13,8 @@ import { ScheduleRouter } from "./app/modules/Schedule/schedule.route";
 import { DoctorScheduleRouter } from "./app/modules/DoctorSchedule/doctorSchedule.route";
 import { AppointmentRouter } from "./app/modules/Appointment/appointment.route";
 import { PaymentRouter } from "./app/modules/Payment/payment.route";
+import { AppointmentService } from "./app/modules/Appointment/appointment.service";
+import cron from "node-cron";
 
 const app: Application = express();
 
@@ -21,6 +23,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// seed - cron
+cron.schedule("* * * * *", () => {
+  try {
+    AppointmentService.cancelUnpaidAppointments();
+  } catch (error) {
+    console.error(error);
+  }
+});
 
 // routes
 app.use("/api/v1/user", UserRouter);

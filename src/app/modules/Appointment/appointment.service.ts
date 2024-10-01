@@ -1,4 +1,9 @@
-import { AppointmentStatus, Prisma, UserRole } from "@prisma/client";
+import {
+  AppointmentStatus,
+  PaymentStaus,
+  Prisma,
+  UserRole,
+} from "@prisma/client";
 import { TAuthUser } from "../../interfaces/jwt";
 import prisma from "../../utils/prisma";
 import { v4 as uuidv4 } from "uuid";
@@ -178,8 +183,54 @@ const changeStatus = async (
   return result;
 };
 
+const cancelUnpaidAppointments = async () => {
+  const interval = new Date(Date.now() - 30 * 60 * 1000);
+
+  const unpaidAppointments = await prisma.appointment.findMany({
+    where: {
+      createdAt: {
+        lte: interval,
+      },
+      paymentStatus: PaymentStaus.UNPAID,
+    },
+  });
+
+  const unpaidAppointmentsIds = unpaidAppointments.map((up) => up.id);
+
+  await prisma.$transaction(async (tx) => {
+    // delete payment
+    await tx.payment.deleteMany({
+      where: {
+        appointmentId: {
+          in: unpaidAppointmentsIds,
+        },
+      },
+    });
+    // update doctorSchedule
+    await tx.doctorSchedules.updateMany({
+      where: {
+        appointmentId: {
+          in: unpaidAppointmentsIds,
+        },
+      },
+      data: {
+        isBooked: false,
+        appointmentId: null,
+      },
+    });
+    // delete appointments
+    for (const up of unpaidAppointments)
+      await tx.appointment.delete({
+        where: {
+          id: up.id,
+        },
+      });
+  });
+};
+
 export const AppointmentService = {
   createAppointment,
   getMyAppointment,
   changeStatus,
+  cancelUnpaidAppointments,
 };
