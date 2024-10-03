@@ -1,8 +1,14 @@
 import { Router } from "express";
 import { PrescriptionController } from "./prescription.controller";
+import auth from "../../middlewares/auth";
+import { UserRole } from "@prisma/client";
 
 const router = Router();
 
-router.post("/", PrescriptionController.createPrescription);
+router.post(
+  "/",
+  auth(UserRole.DOCTOR),
+  PrescriptionController.createPrescription
+);
 
 export const PrescriptionRouter = router;
