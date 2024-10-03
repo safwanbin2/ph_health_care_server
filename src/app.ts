@@ -15,6 +15,7 @@ import { AppointmentRouter } from "./app/modules/Appointment/appointment.route";
 import { PaymentRouter } from "./app/modules/Payment/payment.route";
 import { AppointmentService } from "./app/modules/Appointment/appointment.service";
 import cron from "node-cron";
+import { PrescriptionRouter } from "./app/modules/Prescription/prescription.route";
 
 const app: Application = express();
 
@@ -44,6 +45,7 @@ app.use("/api/v1/schedule", ScheduleRouter);
 app.use("/api/v1/doctor-schedule", DoctorScheduleRouter);
 app.use("/api/v1/appointment", AppointmentRouter);
 app.use("/api/v1/payment", PaymentRouter);
+app.use("/api/v1/prescription", PrescriptionRouter);
 
 // error handler
 app.use(globalErrorHandler);
