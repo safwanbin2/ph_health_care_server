@@ -83,8 +83,29 @@ const getDoctorMetaData = async (user: any) => {
     },
   });
 
+  const appointmentStatusGroupedRaw = await prisma.appointment.groupBy({
+    by: ["status"],
+    _count: {
+      id: true,
+    },
+    where: {
+      doctorId: doctorData?.id,
+    },
+  });
+
+  const appointmentStatusGrouped = appointmentStatusGroupedRaw.map((item) => ({
+    status: item?.status,
+    count: item?._count?.id,
+  }));
+
   console.dir(
-    { appointmentCount, patientCount, reviewCount, totalRevenue },
+    {
+      appointmentCount,
+      patientCount,
+      reviewCount,
+      totalRevenue,
+      appointmentStatusGrouped,
+    },
     { depth: Infinity }
   );
 };
