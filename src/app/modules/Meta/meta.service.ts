@@ -134,9 +134,9 @@ const getDoctorMetaData = async (user: any) => {
 
   return {
     appointmentCount,
-    patientCount,
+    patientCount: patientCount.length,
     reviewCount,
-    totalRevenue,
+    totalRevenue: totalRevenue._sum.amount,
     appointmentStatusGrouped,
   };
 };
