@@ -1,29 +1,59 @@
-import { UserRole } from "@prisma/client";
+import { PaymentStaus, UserRole } from "@prisma/client";
 import AppEror from "../../errors/AppError";
 import httpStatus from "http-status";
 import prisma from "../../utils/prisma";
 
 const getMetaData = async (user: any) => {
+  let metaData;
   switch (user?.role) {
     case UserRole.SUPER_ADMIN:
-      getSuperAdminMetaData();
+      metaData = getSuperAdminMetaData();
       break;
     case UserRole.ADMIN:
-      getAdminMetaData();
+      metaData = getAdminMetaData();
       break;
     case UserRole.DOCTOR:
-      getDoctorMetaData(user);
+      metaData = getDoctorMetaData(user);
       break;
     case UserRole.PATIENT:
-      getPatientMetaData();
+      metaData = getPatientMetaData(user);
       break;
     default:
       throw new AppEror(httpStatus.BAD_REQUEST, "Invalid user role");
   }
+
+  return metaData;
 };
 
 const getSuperAdminMetaData = async () => {
-  console.log("super man");
+  // admin count
+  const adminCount = await prisma.admin.count();
+  // doctor count
+  const doctorCount = await prisma.doctor.count();
+  // patient count
+  const patientCount = await prisma.patient.count();
+  // appointment count
+  const appointmentCount = await prisma.appointment.count();
+  // payment count
+  const paymentCount = await prisma.payment.count();
+  // total Revenue
+  const totalRevenueRaw = await prisma.payment.aggregate({
+    _sum: {
+      amount: true,
+    },
+    where: {
+      status: PaymentStaus.PAID,
+    },
+  });
+
+  return {
+    adminCount,
+    doctorCount,
+    patientCount,
+    appointmentCount,
+    paymentCount,
+    totalRevenue: totalRevenueRaw._sum.amount,
+  };
 };
 
 const getAdminMetaData = async () => {
@@ -31,19 +61,22 @@ const getAdminMetaData = async () => {
   const patientCount = await prisma.patient.count();
   const appointmentCount = await prisma.appointment.count();
   const paymentCount = await prisma.payment.count();
-  const totalRevenue = await prisma.payment.aggregate({
+  const totalRevenueRaw = await prisma.payment.aggregate({
     _sum: {
       amount: true,
     },
+    where: {
+      status: PaymentStaus.PAID,
+    },
   });
 
-  console.log({
+  return {
     doctorCount,
     patientCount,
     appointmentCount,
     paymentCount,
-    totalRevenue,
-  });
+    totalRevenue: totalRevenueRaw._sum.amount,
+  };
 };
 
 const getDoctorMetaData = async (user: any) => {
@@ -80,6 +113,7 @@ const getDoctorMetaData = async (user: any) => {
       appointment: {
         doctorId: doctorData?.id,
       },
+      status: PaymentStaus.PAID,
     },
   });
 
@@ -98,20 +132,51 @@ const getDoctorMetaData = async (user: any) => {
     count: item?._count?.id,
   }));
 
-  console.dir(
-    {
-      appointmentCount,
-      patientCount,
-      reviewCount,
-      totalRevenue,
-      appointmentStatusGrouped,
-    },
-    { depth: Infinity }
-  );
+  return {
+    appointmentCount,
+    patientCount,
+    reviewCount,
+    totalRevenue,
+    appointmentStatusGrouped,
+  };
 };
 
-const getPatientMetaData = async () => {
-  console.log("patient man");
+const getPatientMetaData = async (user: any) => {
+  // patient data
+  const patientData = await prisma.patient.findUniqueOrThrow({
+    where: {
+      email: user?.email,
+    },
+  });
+  // appointment count
+  const appointmentCount = await prisma.appointment.count({
+    where: {
+      patientId: patientData?.id,
+    },
+  });
+  // prescription count
+  const prescriptionCount = await prisma.prescription.count({
+    where: {
+      patientId: patientData.id,
+    },
+  });
+  // patient spent
+  const totalSpentRaw = await prisma.payment.aggregate({
+    _sum: {
+      amount: true,
+    },
+    where: {
+      appointment: {
+        patientId: patientData.id,
+      },
+    },
+  });
+
+  return {
+    appointmentCount,
+    prescriptionCount,
+    totalSpent: totalSpentRaw._sum.amount,
+  };
 };
 
 export const MetaService = {
