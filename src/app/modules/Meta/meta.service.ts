@@ -22,16 +22,16 @@ const getMetaData = async (user: any) => {
 };
 
 const getSuperAdminMetaData = async () => {
-  return "super man";
+  console.log("super man");
 };
 const getAdminMetaData = async () => {
-  return "admin man";
+  console.log("admin man");
 };
 const getDoctorMetaData = async () => {
-  return "doctor man";
+  console.log("doctor man");
 };
 const getPatientMetaData = async () => {
-  return "patient man";
+  console.log("patient man");
 };
 
 export const MetaService = {
