@@ -4,7 +4,7 @@ import sendResponse from "../../utils/sendResponse";
 import { MetaService } from "./meta.service";
 
 const getMetaData = catchAsync(async (req, res) => {
-  const result = await MetaService.getMetaData();
+  const result = await MetaService.getMetaData(req?.user);
 
   sendResponse(res, {
     success: true,
