@@ -66,7 +66,27 @@ const getDoctorMetaData = async (user: any) => {
     },
   });
 
-  console.dir({ appointmentCount, patientCount }, { depth: Infinity });
+  const reviewCount = await prisma.review.count({
+    where: {
+      doctorId: doctorData?.id,
+    },
+  });
+
+  const totalRevenue = await prisma.payment.aggregate({
+    _sum: {
+      amount: true,
+    },
+    where: {
+      appointment: {
+        doctorId: doctorData?.id,
+      },
+    },
+  });
+
+  console.dir(
+    { appointmentCount, patientCount, reviewCount, totalRevenue },
+    { depth: Infinity }
+  );
 };
 
 const getPatientMetaData = async () => {
