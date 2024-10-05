@@ -46,7 +46,8 @@ const getSuperAdminMetaData = async () => {
     },
   });
   // bar chart data
-  const appointmentsGroupByMonth = await getBarChartData();
+  const barChartData = await getBarChartData();
+  const pieChartData = await getPieChartData();
 
   return {
     adminCount,
@@ -55,7 +56,8 @@ const getSuperAdminMetaData = async () => {
     appointmentCount,
     paymentCount,
     totalRevenue: totalRevenueRaw._sum.amount,
-    appointmentsGroupByMonth,
+    barChartData,
+    pieChartData,
   };
 };
 
@@ -72,13 +74,17 @@ const getAdminMetaData = async () => {
       status: PaymentStaus.PAID,
     },
   });
-
+  // bar chart data
+  const barChartData = await getBarChartData();
+  const pieChartData = await getPieChartData();
   return {
     doctorCount,
     patientCount,
     appointmentCount,
     paymentCount,
     totalRevenue: totalRevenueRaw._sum.amount,
+    barChartData,
+    pieChartData,
   };
 };
 
@@ -189,6 +195,17 @@ const getBarChartData = async () => {
     GROUP BY month
     ORDER BY month ASC
   `;
+
+  return result;
+};
+
+const getPieChartData = async () => {
+  const result = await prisma.appointment.groupBy({
+    by: ["status"],
+    _count: {
+      id: true,
+    },
+  });
 
   return result;
 };
